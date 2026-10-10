@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router'
+import Layout from "./Layout.jsx";
 
 export default function Dashboard() {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -9,6 +10,7 @@ export default function Dashboard() {
   };
 
   return (
+    <Layout>
     <div className="content-wrapper">
       <div className="row">
         <div className="col-xl-6 grid-margin stretch-card flex-column">
@@ -433,5 +435,6 @@ export default function Dashboard() {
       </div>
 
     </div>
+    </Layout>
   );
 }

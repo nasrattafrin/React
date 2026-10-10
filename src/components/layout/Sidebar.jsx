@@ -176,6 +176,9 @@ import { Link } from 'react-router';
                 <Link className="nav-link" to="/login">Login</Link>
               </li>
               <li className="nav-item">
+                <Link className="nav-link" to="/addresses">Adress</Link>
+              </li>
+              <li className="nav-item">
                 <Link className="nav-link" to="/register">Register</Link>
               </li>
             </ul>
