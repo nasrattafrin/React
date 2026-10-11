@@ -1,15 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router';
 import Layout from "../Layout.jsx";
+import axios from '../../Lib/axios.js';
 function Addresses() {
 
   const [addresses, setAddresses] = React.useState([]);
-
-  function fetchAddresses() {
-    fetch('http://localhost/courier_api/addresses/index.php')
-      .then(response => response.json())
-      .then(data => setAddresses(data.data))
-      .catch(error => console.error('Error fetching address:', error));
+  const fetchAddresses = async (e) => {
+          let res = await axios.get(`addresses/index.php`)
+          setAddresses(res.data.data);
   }
 
   React.useEffect(() => {
@@ -17,20 +15,17 @@ function Addresses() {
   }
 , [addresses]);
 
-function handleDelete(id) {
+async function handleDelete(id) {
   if (window.confirm("Are you sure you want to delete this category?")) {
-    fetch(`http://localhost/courier_api/addresses/delete.php?id=${id}`, {
-      method: 'DELETE'
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status == 'true') {
-          fetchAddresses();
-        }
-      })
-      .catch(error => console.error('Error deleting category:', error));
+   let res = await axios.delete(`addresses/delete.php?id=${id}`)
+      if(res.data.status){
+      fetchAddresses();
+    }else{
+      alert(res.data.message);
+    }
   }
 }
+
 
   return (
     <Layout>
@@ -110,13 +105,14 @@ function handleDelete(id) {
                         <th>#</th>
                         <th> Name</th>
                         <th>PHONE</th>
+                        <th>Image</th>
                         <th>Action</th>
                       </tr>
                     </thead>
 
                     <tbody>
 
-                      {addresses.map((address, index) => (
+                      {addresses && addresses.map((address, index) => (
 
                         <tr key={address.id}>
 
@@ -127,6 +123,12 @@ function handleDelete(id) {
                           </td>
 
                           <td>{address.phone}</td>
+                          <td>
+                             {address.image && (
+                              <img src={`${import.meta.env.VITE_API_URL}${address.image}`} alt={address.name} className="img-fluid" width="100" />
+                            )}
+
+                          </td>
                           <td>
                             <div className="form-button-action">
                                 <Link to={`/addresses/edit/${address.id}`} className="btn btn-primary">
