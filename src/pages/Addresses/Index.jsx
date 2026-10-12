@@ -1,155 +1,232 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import Layout from "../Layout.jsx";
-import axios from '../../Lib/axios.js';
+import API from '../../Lib/axios.js';
+
 function Addresses() {
+  
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState('');
 
-  const [addresses, setAddresses] = React.useState([]);
-  const fetchAddresses = async (e) => {
-          let res = await axios.get(`addresses/index.php`)
-          setAddresses(res.data.data);
-  }
+  const fetchAddresses = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      let res = await API.get('addresses/index.php');
+      console.log('API Response:', res.data);
+      if (res.data.status === true || res.data.status === 'true') {
+        setAddresses(res.data.data || []);
+      } else {
+        setError(res.data.message || 'Failed to load');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err?.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  React.useEffect(() => {
+
+  useEffect(() => {
     fetchAddresses();
-  }
-, [addresses]);
+  }, []);
 
-async function handleDelete(id) {
-  if (window.confirm("Are you sure you want to delete this category?")) {
-   let res = await axios.delete(`addresses/delete.php?id=${id}`)
-      if(res.data.status){
-      fetchAddresses();
-    }else{
-      alert(res.data.message);
+ 
+  async function handleDelete(id, name) {
+    if (!window.confirm(`Delete "${name}"?`)) return;
+
+    try {
+      let res = await API.delete(`addresses/delete.php?id=${id}`);
+
+      if (res.data.status === true || res.data.status === 'true') {
+        fetchAddresses();
+      } else {
+        alert(res.data.message || 'Delete failed');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert(err?.response?.data?.message || err.message);
     }
   }
-}
 
+
+  const filtered = addresses.filter((a) => {
+    const s = search.toLowerCase();
+    return (
+      a.name?.toLowerCase().includes(s) ||
+      a.phone?.includes(search) ||
+      a.address?.toLowerCase().includes(s)
+    );
+  });
 
   return (
     <Layout>
-    <div className="container">
-      <div className="page-inner">
+      <div className="container">
+        <div className="page-inner">
 
-        {/* Page Header */}
-        <div className="page-header">
-          <h3 className="fw-bold mb-3">Address</h3>
+          {/* Page Header */}
+          <div className="page-header">
+            <h3 className="fw-bold mb-3">Addresses</h3>
 
-          <ul className="breadcrumbs mb-3">
-            <li className="nav-home">
-              <a href="#">
-                <i className="icon-home"></i>
-              </a>
-            </li>
-
-            <li className="separator">
-              <i className="icon-arrow-right"></i>
-            </li>
-
-            <li className="nav-item">
-              <a href="#">Address</a>
-            </li>
-          </ul>
-        </div>
-
-        {/* Table Card */}
-        <div className="row">
-          <div className="col-md-12">
-
-            <div className="card card-round">
-
-              <div className="card-header">
-                <div className="d-flex align-items-center">
-
-                  <h4 className="card-title">
-                    ADDRESSES
-                  </h4>
-
-                  <Link to="/addresses/create" className="btn btn-primary btn-round ms-auto">
-                    <i className="fa fa-plus"></i>
-                    &nbsp; Add Address
+            <nav aria-label="breadcrumb">
+              <ol className="breadcrumb">
+                <li className="breadcrumb-item">
+                  <Link to="/">
+                    <i className="typcn typcn-home-outline mr-1"></i>
+                    Home
                   </Link>
+                </li>
+                <li className="breadcrumb-item active" aria-current="page">
+                  Addresses
+                </li>
+              </ol>
+            </nav>
+          </div>
 
-                </div>
-              </div>
+          {/* Table Card */}
+          <div className="row">
+            <div className="col-md-12">
+              <div className="card card-round">
 
-              <div className="card-body">
+                <div className="card-header">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <h4 className="card-title mb-0">ADDRESSES</h4>
 
-                {/* Search */}
-                <div className="row mb-3">
-                  <div className="col-md-4">
-
-                    <div className="input-icon">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search ADDRESS..."
-                      />
-
-                      <span className="input-icon-addon">
-                        <i className="fa fa-search"></i>
-                      </span>
-                    </div>
-
+                    <Link
+                      to="/addresses/create"
+                      className="btn btn-primary btn-round"
+                    >
+                      <i className="typcn typcn-plus mr-1"></i>
+                      Add Address
+                    </Link>
                   </div>
                 </div>
 
-                {/* Table */}
-                <div className="table-responsive">
+                <div className="card-body">
 
-                  <table className="table table-hover">
+                  {/* Search */}
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <div className="input-icon">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Search by name, phone, address..."
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <span className="input-icon-addon">
+                          <i className="typcn typcn-zoom"></i>
+                        </span>
+                      </div>
+                    </div>
 
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th> Name</th>
-                        <th>PHONE</th>
-                        <th>Image</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
+                    <div className="col-md-6 text-right">
+                      <button
+                        className="btn btn-light border"
+                        onClick={fetchAddresses}
+                        disabled={loading}
+                      >
+                        <i className="typcn typcn-refresh mr-1"></i>
+                        {loading ? 'Loading...' : 'Reload'}
+                      </button>
+                    </div>
+                  </div>
 
-                    <tbody>
+                  {/* Error */}
+                  {error && <div className="alert alert-danger">{error}</div>}
 
-                      {addresses && addresses.map((address, index) => (
+                  {/* Table */}
+                  {loading ? (
+                    <p className="text-center py-4">Loading...</p>
+                  ) : filtered.length === 0 ? (
+                    <p className="text-center text-muted py-4">
+                      {addresses.length === 0
+                        ? 'No addresses yet. Click "Add Address" to create one.'
+                        : 'No results match your search.'}
+                    </p>
+                  ) : (
+                    <div className="table-responsive">
+                      <table className="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
 
-                        <tr key={address.id}>
+                        <tbody>
+                          {filtered.map((address, index) => (
+                            <tr key={address.id}>
+                              <td>{index + 1}</td>
 
-                          <td>{index + 1}</td>
+                              <td>
+                                <strong>{address.name}</strong>
+                              </td>
 
-                          <td>
-                            <strong>{address.name}</strong>
-                          </td>
+                              <td>{address.phone}</td>
 
-                          <td>{address.phone}</td>
-                          <td>
-                             {address.image && (
-                              <img src={`${import.meta.env.VITE_API_URL}${address.image}`} alt={address.name} className="img-fluid" width="100" />
-                            )}
+                              <td>
+                                {address.image ? (
+                                  <img
+                                    src={`${import.meta.env.VITE_API_URL}${address.image}`}
+                                    alt={address.name}
+                                    style={{
+                                      width: '50px',
+                                      height: '50px',
+                                      objectFit: 'cover',
+                                      borderRadius: '6px',
+                                      border: '1px solid #e4e4f4',
+                                    }}
+                                  />
+                                ) : (
+                                  <span className="text-muted small">No image</span>
+                                )}
+                              </td>
 
-                          </td>
-                          <td>
-                            <div className="form-button-action">
-                                <Link to={`/addresses/edit/${address.id}`} className="btn btn-primary">
-                                Edit
-                                </Link>
-                                <button className="btn btn-danger" onClick={() => handleDelete(address.id)}>
-                                Delete
-                                </button>
-                            </div>
-                            </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                              <td>
+                                <div className="d-flex">
+                                  <Link
+                                    to={`/addresses/edit/${address.id}`}
+                                    className="btn btn-primary btn-sm mr-2"
+                                  >
+                                    <i className="typcn typcn-edit"></i> Edit
+                                  </Link>
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => handleDelete(address.id, address.name)}
+                                  >
+                                    <i className="typcn typcn-delete-outline"></i> Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Counter */}
+                  {!loading && filtered.length > 0 && (
+                    <p className="text-muted mt-3 mb-0 small">
+                      Showing {filtered.length} of {addresses.length} addresses
+                    </p>
+                  )}
+
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
-    </div>
     </Layout>
   );
 }

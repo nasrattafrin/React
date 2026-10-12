@@ -4,6 +4,7 @@ import axios from "axios";
 
 export default function Register() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); 
 
@@ -38,125 +39,210 @@ export default function Register() {
   }
 
   return (
-    <div className="container-scroller">
-      <div className="container-fluid page-body-wrapper full-page-wrapper">
-        <div className="content-wrapper d-flex align-items-center auth px-0">
-          <div className="row w-100 mx-0">
-            <div className="col-lg-4 mx-auto">
-              <div className="auth-form-light text-left py-5 px-4 px-sm-5">
+  <div className="container-scroller">
+    <div className="container-fluid page-body-wrapper full-page-wrapper">
+      <div className="content-wrapper d-flex align-items-center auth px-0">
+        <div className="row w-100 mx-0">
+          <div className="col-lg-4 mx-auto">
+            <div className="auth-form-light text-left py-5 px-4 px-sm-5">
 
-                <div className="brand-logo">
-                  <img src="assets/images/logo-dark.svg" alt="logo" />
+              {/* Logo */}
+              <div className="brand-logo">
+                <img src="/assets/images/logo-dark.svg" alt="logo" />
+              </div>
+
+              <h4 className="text-dark">New here?</h4>
+              <h6 className="font-weight-normal text-secondary">
+                Signing up is easy. It only takes a few steps
+              </h6>
+
+              {/* Message Alert */}
+              {message && (
+                <div
+                  className={`alert ${
+                    messageType === "success"
+                      ? "alert-success"
+                      : "alert-danger"
+                  } mt-3`}
+                >
+                  {message}
+                </div>
+              )}
+
+              <form className="pt-3" onSubmit={handleSubmit}>
+
+                {/* Username */}
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="name"
+                    className="form-control form-control-lg"
+                    id="exampleInputUsername1"
+                    placeholder="Username"
+                    required
+                  />
                 </div>
 
-                <h4>New here?</h4>
-                <h6 className="font-weight-light">
-                  Signing up is easy. It only takes a few steps
-                </h6>
-                {message && (
-                  <div
-                    className={`alert ${
-                      messageType === "success"
-                        ? "alert-success"
-                        : "alert-danger"
-                    } mt-3`}
+                {/* Email */}
+                <div className="form-group">
+                  <input
+                    type="email"
+                    name="email"
+                    className="form-control form-control-lg"
+                    id="exampleInputEmail1"
+                    placeholder="Email"
+                    required
+                  />
+                </div>
+
+                {/* Country */}
+                <div className="form-group">
+                  <select
+                    name="country"
+                    className="form-control form-control-lg"
+                    id="exampleFormControlSelect2"
+                    defaultValue="Country"
                   >
-                    {message}
-                  </div>
-                )}
+                    <option>Country</option>
+                    <option>United States of America</option>
+                    <option>United Kingdom</option>
+                    <option>India</option>
+                    <option>Germany</option>
+                    <option>Argentina</option>
+                  </select>
+                </div>
 
-                <form className="pt-3" onSubmit={handleSubmit}>
-                  <div className="form-group">
+                
+                {/* Password */}
+                <div className="form-group position-relative">
+                  <input
+                    type={passwordVisible ? "text" : "password"}
+                    name="password"
+                    className="form-control form-control-lg"
+                    id="exampleInputPassword1"
+                    placeholder="Password"
+                    required
+                    style={{ paddingRight: '45px' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-sm position-absolute"
+                    style={{
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "transparent",
+                      border: "none",
+                      color: "#6c7293",
+                      padding: "5px",
+                      zIndex: 5,
+                    }}
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    tabIndex="-1"
+                  >
+                    <i
+                      className={
+                        passwordVisible
+                          ? "typcn typcn-eye-outline"
+                          : "typcn typcn-eye"
+                      }
+                      style={{ fontSize: "20px" }}
+                    ></i>
+                  </button>
+                </div>
+
+               
+                {/* Confirm Password */}
+                <div className="form-group position-relative">
+                  <input
+                    type={confirmPasswordVisible ? "text" : "password"}
+                    name="confirmPassword"
+                    className="form-control form-control-lg"
+                    id="exampleInputConfirmPassword1"
+                    placeholder="Confirm Password"
+                    required
+                    style={{ paddingRight: '45px' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-sm position-absolute"
+                    style={{
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "transparent",
+                      border: "none",
+                      color: "#6c7293",
+                      padding: "5px",
+                      zIndex: 5,
+                    }}
+                    onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                    tabIndex="-1"
+                  >
+                    <i
+                      className={
+                        confirmPasswordVisible
+                          ? "typcn typcn-eye-outline"
+                          : "typcn typcn-eye"
+                      }
+                      style={{ fontSize: "20px" }}
+                    ></i>
+                  </button>
+                </div>
+
+                {/* Terms Checkbox — ✅ FIXED */}
+                <div className="form-group">
+                  <div className="form-check">
                     <input
-                      type="text"
-                      name="name"
-                      className="form-control form-control-lg"
-                      id="exampleInputUsername1"
-                      placeholder="Username"
+                      type="checkbox"
+                      className="form-check-input"
+                      id="termsCheck"
                       required
                     />
-                  </div>
-
-                  <div className="form-group">
-                    <input
-                      type="email"
-                      name="email"
-                      className="form-control form-control-lg"
-                      id="exampleInputEmail1"
-                      placeholder="Email"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <select
-                      name="country"
-                      className="form-control form-control-lg"
-                      id="exampleFormControlSelect2"
-                      defaultValue="Country"
+                    <label
+                      className="form-check-label text-dark"
+                      htmlFor="termsCheck"
+                      style={{ fontSize: '14px', cursor: 'pointer' }}
                     >
-                      <option>Country</option>
-                      <option>United States of America</option>
-                      <option>United Kingdom</option>
-                      <option>India</option>
-                      <option>Germany</option>
-                      <option>Argentina</option>
-                    </select>
+                      I agree to all{' '}
+                      <a
+                        href="#"
+                        className="text-primary font-weight-medium"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        Terms &amp; Conditions
+                      </a>
+                    </label>
                   </div>
-                  <div className="form-group">
-                    <input
-                      type="password"
-                      name="password"
-                      className="form-control form-control-lg"
-                      id="exampleInputPassword1"
-                      placeholder="Password"
-                      required
-                    />
-                  </div>
+                </div>
 
-                  <div className="form-group">
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      className="form-control form-control-lg"
-                      id="exampleInputConfirmPassword1"
-                      placeholder="Confirm Password"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <div className="form-check">
-                      <label className="form-check-label text-muted">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          required
-                        />
-                        I agree to all Terms & Conditions
-                      </label>
-                    </div>
-                  </div>
+                {/* Submit Button */}
+                <div className="mt-3">
+                  <button
+                    type="submit"
+                    className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                  >
+                    SIGN UP
+                  </button>
+                </div>
 
-                  <div className="mt-3">
-                    <button
-                      type="submit"
-                      className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
-                      SIGN UP
-                    </button>
-                  </div>
+                {/* Login Link */}
+                <div className="text-center mt-4 font-weight-normal text-secondary">
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="text-primary font-weight-medium"
+                  >
+                    Login
+                  </Link>
+                </div>
 
-                  <div className="text-center mt-4 font-weight-light">
-                    Already have an account?{" "}
-                    <Link to="/login" className="text-primary">
-                      Login
-                    </Link>
-                  </div>
-
-                </form>
-              </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
