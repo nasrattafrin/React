@@ -4,6 +4,12 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import AddressCreate from "./pages/Addresses/Create.jsx"; 
 import Addresses from "./pages/Addresses/Index.jsx";
 import AddressEdit from "./pages/Addresses/Edit.jsx"; 
+import RolesIndex from "./pages/Roles/Index.jsx";
+{/*import RolesCreate from "./pages/Roles/Create.jsx";
+import RolesEdit from "./pages/Roles/Edit.jsx";*/}
+import BranchesCreate from "./pages/Branches/Create.jsx";
+import BranchesEdit from "./pages/Branches/Edit.jsx";
+import BranchesIndex from "./pages/Branches/Index.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Protected from './Auth/Protected.jsx';
@@ -33,7 +39,20 @@ export default function App() {
                             <Route index element={<Addresses />} />
                             <Route path="create" element={<AddressCreate />} />
                             <Route path="edit/:id" element={<AddressEdit />} />
-                          </Route>
+                      </Route>
+                      
+                      <Route path="roles">
+                      <Route index element={<RolesIndex />} />
+                      {/*<Route path="create" element={<RolesCreate />} />
+                      <Route path="edit/:id" element={<RolesEdit />} />*/}
+                    </Route>
+                    <Route path="branches">
+                      <Route index element={<BranchesIndex />} />
+                      <Route path="create" element={<BranchesCreate />}/>
+                      <Route path="edit/:id" element={<BranchesEdit />} />
+                    </Route>
+
+
                   </Route>
                 
               </Routes>

@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-
  function Sidebar() {
   const [openMenu, setOpenMenu] = useState(null);
-
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? null : menu);
   };
-
   return (
     <nav className="sidebar sidebar-offcanvas" id="sidebar">
       <ul className="nav">
@@ -18,65 +15,20 @@ import { Link } from 'react-router';
             <div className="badge badge-danger">new</div>
           </Link>
         </li>
+        {/* Roles */}
         <li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              toggleMenu('ui-basic');
-            }}
-          >
-            <i className="typcn typcn-document-text menu-icon"></i>
-            <span className="menu-title">UI Elements</span>
-            <i className="menu-arrow"></i>
-          </a>
-
-          <div
-            className={`collapse ${openMenu === 'ui-basic' ? 'show' : ''}`}
-            id="ui-basic"
-          >
-            <ul className="nav flex-column sub-menu">
-              <li className="nav-item">
-                <Link className="nav-link" to="/ui/buttons">Buttons</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/ui/dropdowns">Dropdowns</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/ui/typography">Typography</Link>
-              </li>
-            </ul>
-          </div>
+          <Link className="nav-link" to="/roles">
+            <i className="typcn typcn-group menu-icon"></i>
+            <span className="menu-title">Roles</span>
+          </Link>
         </li>
-
+        {/* Branches */}
         <li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              toggleMenu('form-elements');
-            }}
-          >
-            <i className="typcn typcn-film menu-icon"></i>
-            <span className="menu-title">Form elements</span>
-            <i className="menu-arrow"></i>
-          </a>
-
-          <div
-            className={`collapse ${openMenu === 'form-elements' ? 'show' : ''}`}
-            id="form-elements"
-          >
-            <ul className="nav flex-column sub-menu">
-              <li className="nav-item">
-                <Link className="nav-link" to="/forms/basic">Basic Elements</Link>
-              </li>
-            </ul>
-          </div>
+          <Link className="nav-link" to="/branches">
+            <i className="typcn typcn-location menu-icon"></i>
+            <span className="menu-title">Branches</span>
+          </Link>
         </li>
-
-
         <li className="nav-item">
           <a
             className="nav-link"
@@ -172,19 +124,19 @@ import { Link } from 'react-router';
             id="auth"
           >
             <ul className="nav flex-column sub-menu">
-              <li className="nav-item">
+              {/*{<li className="nav-item">
                 <Link className="nav-link" to="/login">Login</Link>
-              </li>
+              </li>}*/}
               <li className="nav-item">
                 <Link className="nav-link" to="/addresses">Adress</Link>
               </li>
-              <li className="nav-item">
+              {/*<li className="nav-item">
                 <Link className="nav-link" to="/register">Register</Link>
-              </li>
+              </li>*/}
             </ul>
           </div>
         </li>
-        <li className="nav-item">
+        {/*<li className="nav-item">
           <a
             className="nav-link"
             href="#"
@@ -221,7 +173,7 @@ import { Link } from 'react-router';
             <i className="typcn typcn-mortar-board menu-icon"></i>
             <span className="menu-title">Documentation</span>
           </a>
-        </li>
+        </li>*/}
 
       </ul>
     </nav>
