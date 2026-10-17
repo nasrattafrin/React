@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import API from '../../Lib/axios.js';
 import Layout from "../Layout.jsx";
-
 import StatusBadge from '../../components/StatusBadge';
 
 export default function ParcelList() {
@@ -10,7 +9,7 @@ export default function ParcelList() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', status: '' });
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
     const params = {};
     if (filters.search) params.search = filters.search;
@@ -20,7 +19,25 @@ export default function ParcelList() {
       .then(res => setParcels(res.data.parcels || []))
       .catch(err => alert(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    load();
   }, [filters]);
+
+  const handleCancel = async (id, trackingId) => {
+    if (!window.confirm(`Cancel parcel ${trackingId}? This cannot be undone.`)) return;
+    try {
+      await API.patch(
+        '/parcel/parcels.php',
+        { id, status: 4, note: 'Cancelled from list' },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      load();
+    } catch (err) {
+      alert(err.response?.data?.message || err.message);
+    }
+  };
 
   return (
     <Layout>
@@ -79,31 +96,65 @@ export default function ParcelList() {
                         <th>Zone</th>
                         <th>Charge</th>
                         <th>Status</th>
-                        <th>Created</th>
+                        <th className="text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {parcels.map(p => (
-                        <tr key={p.id}>
-                          <td>
-                            <Link to={`/parcels/${p.id}`} className="text-primary font-monospace">
-                              {p.tracking_id}
-                            </Link>
-                          </td>
-                          <td>
-                            <div>{p.receiver_name}</div>
-                            <small className="text-muted">{p.receiver_phone}</small>
-                          </td>
-                          <td>{p.zone_name}</td>
-                          <td>৳{p.delivery_charge}</td>
-                          <td><StatusBadge status={p.status} /></td>
-                          <td>
-                            <small className="text-muted">
-                              {new Date(p.created_at).toLocaleDateString()}
-                            </small>
-                          </td>
-                        </tr>
-                      ))}
+                      {parcels.map(p => {
+                        const isFinalised = [3, 4].includes(Number(p.status));
+                        return (
+                          <tr key={p.id}>
+                            <td>
+                              <Link to={`/parcels/${p.id}`} className="text-primary font-monospace">
+                                {p.tracking_id}
+                              </Link>
+                            </td>
+                            <td>
+                              <div>{p.receiver_name}</div>
+                              <small className="text-muted">{p.receiver_phone}</small>
+                            </td>
+                            <td>{p.zone_name}</td>
+                            <td>৳{p.delivery_charge}</td>
+                            <td><StatusBadge status={p.status} /></td>
+                            <td className="text-center">
+                              {/* View */}
+                              <Link
+                                to={`/parcels/${p.id}`}
+                                className="btn btn-sm btn-info mr-1"
+                                title="View"
+                              >
+                                <i className="typcn typcn-eye"></i>
+                              </Link>
+
+                              {/* Edit — only if not finalised */}
+                              {!isFinalised && (
+                                <Link
+                                  to={`/parcels/${p.id}?edit=1`}
+                                  className="btn btn-sm btn-primary mr-1"
+                                  title="Edit"
+                                >
+                                  <i className="typcn typcn-pencil"></i>
+                                </Link>
+                              )}
+
+                              {/* Cancel — only if not finalised */}
+                              {!isFinalised && (
+                                <button
+                                  className="btn btn-sm btn-warning"
+                                  title="Cancel Parcel"
+                                  onClick={() => handleCancel(p.id, p.tracking_id)}
+                                >
+                                  <i className="typcn typcn-times"></i>
+                                </button>
+                              )}
+
+                              {isFinalised && (
+                                <span className="text-muted small">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
