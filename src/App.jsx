@@ -14,9 +14,13 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Protected from './Auth/Protected.jsx';
 import Logout from './Auth/Logout.jsx';
+import ParcelList from "./pages/Parcels/ParcelList.jsx";
+import ParcelCreate from "./pages/Parcels/ParcelCreate.jsx";
+import ParcelDetail from "./pages/Parcels/ParcelDetail.jsx";
+import TrackParcel from "./pages/Parcels/TrackParcel.jsx";
+import DeliverymenList from "./pages/Parcels/DeliverymenList.jsx";
 
 import './App.css';
-
 export default function App() {
   const [ isSignedIn, setIsSignedIn ] = useState(()=> {
     /* if you want, user will be logged in until they logout*/
@@ -26,37 +30,41 @@ export default function App() {
   });
   return (
     <BrowserRouter>
-
-              <Routes>
-                    <Route path="login" element={<Login />}/>
-                    <Route path="register" element={<Register />}/>
-                 <Route element={<Protected isSignedIn={isSignedIn} />}>
-                      <Route index element={<DashboardPage />} />
-                      <Route path="/dashboard" element={<DashboardPage />} />
-                      <Route path="logout" element={<Logout />} />
+      <Routes>
+        <Route path="login" element={<Login />}/>
+        <Route path="register" element={<Register />}/>
+        <Route element={<Protected isSignedIn={isSignedIn} />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="logout" element={<Logout />} />
                     
-                      <Route path="addresses">
-                            <Route index element={<Addresses />} />
-                            <Route path="create" element={<AddressCreate />} />
-                            <Route path="edit/:id" element={<AddressEdit />} />
-                      </Route>
+          <Route path="addresses">
+            <Route index element={<Addresses />} />
+            <Route path="create" element={<AddressCreate />} />
+            <Route path="edit/:id" element={<AddressEdit />} />
+          </Route>
                       
-                      <Route path="roles">
-                      <Route index element={<RolesIndex />} />
-                      {/*<Route path="create" element={<RolesCreate />} />
-                      <Route path="edit/:id" element={<RolesEdit />} />*/}
-                    </Route>
-                    <Route path="branches">
-                      <Route index element={<BranchesIndex />} />
-                      <Route path="create" element={<BranchesCreate />}/>
-                      <Route path="edit/:id" element={<BranchesEdit />} />
-                    </Route>
+          <Route path="roles">
+            <Route index element={<RolesIndex />} />
+            {/*<Route path="create" element={<RolesCreate />} />
+            <Route path="edit/:id" element={<RolesEdit />} />*/}
+          </Route>
 
+          <Route path="branches">
+            <Route index element={<BranchesIndex />} />
+            <Route path="create" element={<BranchesCreate />}/>
+            <Route path="edit/:id" element={<BranchesEdit />} />
+          </Route>
+          <Route path="parcels">
+            <Route index element={<ParcelList />} />
+            <Route path="create" element={<ParcelCreate />} />
+            <Route path=":id" element={<ParcelDetail />} />
+          </Route>
+          <Route path="track" element={<TrackParcel />} />
+          <Route path="deliverymen" element={<DeliverymenList />} />
 
-                  </Route>
-                
-              </Routes>
+        </Route>
+      </Routes>
     </BrowserRouter>
-   
   );
 }

@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
- function Sidebar() {
+
+function Sidebar() {
   const [openMenu, setOpenMenu] = useState(null);
+
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? null : menu);
   };
+
   return (
     <nav className="sidebar sidebar-offcanvas" id="sidebar">
       <ul className="nav">
+        {/* Dashboard */}
         <li className="nav-item">
           <Link className="nav-link" to="/">
             <i className="typcn typcn-device-desktop menu-icon"></i>
@@ -15,6 +19,7 @@ import { Link } from 'react-router';
             <div className="badge badge-danger">new</div>
           </Link>
         </li>
+
         {/* Roles */}
         <li className="nav-item">
           <Link className="nav-link" to="/roles">
@@ -22,6 +27,7 @@ import { Link } from 'react-router';
             <span className="menu-title">Roles</span>
           </Link>
         </li>
+
         {/* Branches */}
         <li className="nav-item">
           <Link className="nav-link" to="/branches">
@@ -29,6 +35,54 @@ import { Link } from 'react-router';
             <span className="menu-title">Branches</span>
           </Link>
         </li>
+          {/* Parcels */}
+        <li className="nav-item">
+          <a
+            className="nav-link"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              toggleMenu('parcels');
+            }}
+          >
+            <i className="typcn typcn-shopping-cart menu-icon"></i>
+            <span className="menu-title">Parcels</span>
+            <i className="menu-arrow"></i>
+          </a>
+          <div
+            className={`collapse ${openMenu === 'parcels' ? 'show' : ''}`}
+            id="parcels"
+          >
+            <ul className="nav flex-column sub-menu">
+              <li className="nav-item">
+                <Link className="nav-link" to="/parcels">
+                  <i className="typcn typcn-th-list menu-icon"></i>
+                  All Parcels
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/parcels/create">
+                  <i className="typcn typcn-plus menu-icon"></i>
+                  Create Parcel
+                </Link>
+              </li>
+               <li className="nav-item">
+                <Link className="nav-link" to="/deliverymen">
+                  <i className="typcn typcn-user menu-icon"></i>
+                  Deliverymen
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/track">
+                  <i className="typcn typcn-location-arrow menu-icon"></i>
+                  Track Parcel
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        {/* Charts */}
         <li className="nav-item">
           <a
             className="nav-link"
@@ -54,6 +108,8 @@ import { Link } from 'react-router';
             </ul>
           </div>
         </li>
+
+        {/* Tables */}
         <li className="nav-item">
           <a
             className="nav-link"
@@ -79,6 +135,8 @@ import { Link } from 'react-router';
             </ul>
           </div>
         </li>
+
+        {/* Icons */}
         <li className="nav-item">
           <a
             className="nav-link"
@@ -105,6 +163,7 @@ import { Link } from 'react-router';
           </div>
         </li>
 
+        {/* User Pages */}
         <li className="nav-item">
           <a
             className="nav-link"
@@ -124,59 +183,15 @@ import { Link } from 'react-router';
             id="auth"
           >
             <ul className="nav flex-column sub-menu">
-              {/*{<li className="nav-item">
-                <Link className="nav-link" to="/login">Login</Link>
-              </li>}*/}
               <li className="nav-item">
-                <Link className="nav-link" to="/addresses">Adress</Link>
-              </li>
-              {/*<li className="nav-item">
-                <Link className="nav-link" to="/register">Register</Link>
-              </li>*/}
-            </ul>
-          </div>
-        </li>
-        {/*<li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              toggleMenu('error');
-            }}
-          >
-            <i className="typcn typcn-globe-outline menu-icon"></i>
-            <span className="menu-title">Error pages</span>
-            <i className="menu-arrow"></i>
-          </a>
-
-          <div
-            className={`collapse ${openMenu === 'error' ? 'show' : ''}`}
-            id="error"
-          >
-            <ul className="nav flex-column sub-menu">
-              <li className="nav-item">
-                <Link className="nav-link" to="/404">404</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/500">500</Link>
+                <Link className="nav-link" to="/addresses">Address</Link>
               </li>
             </ul>
           </div>
         </li>
-        <li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            onClick={(e) => e.preventDefault()}
-          >
-            <i className="typcn typcn-mortar-board menu-icon"></i>
-            <span className="menu-title">Documentation</span>
-          </a>
-        </li>*/}
-
       </ul>
     </nav>
   );
 }
-export default Sidebar
+
+export default Sidebar;
