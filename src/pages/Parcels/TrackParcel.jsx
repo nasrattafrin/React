@@ -9,7 +9,6 @@ export default function TrackParcel() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const search = async (e) => {
     e.preventDefault();
     setError(''); setData(null); setLoading(true);
@@ -24,7 +23,6 @@ export default function TrackParcel() {
       setLoading(false);
     }
   };
-
   return (
     <Layout>
       <div className="row">
@@ -38,8 +36,7 @@ export default function TrackParcel() {
                   className="form-control mr-2 font-monospace"
                   placeholder="Enter tracking ID (e.g. TRK-20261017-A3F9)"
                   value={tracking}
-                  onChange={e => setTracking(e.target.value)}
-                />
+                  onChange={e => setTracking(e.target.value)} />
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? '...' : 'Track'}
                 </button>
@@ -76,7 +73,6 @@ export default function TrackParcel() {
                       <p className="mb-0">৳{data.parcel.delivery_charge}</p>
                     </div>
                   </div>
-
                   <hr />
                   <h5 className="mb-3">Timeline</h5>
                   <ParcelTimeline logs={data.logs} />

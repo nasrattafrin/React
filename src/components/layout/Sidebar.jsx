@@ -73,6 +73,11 @@ function Sidebar() {
                 </Link>
               </li>
               <li className="nav-item">
+              <Link className="nav-link" to="/pricing">  
+              <i className="typcn typcn-tag menu-icon"></i> Pricing
+              </Link>
+            </li>
+              <li className="nav-item">
                 <Link className="nav-link" to="/track">
                   <i className="typcn typcn-location-arrow menu-icon"></i>
                   Track Parcel
@@ -81,6 +86,36 @@ function Sidebar() {
             </ul>
           </div>
         </li>
+
+        <li className="nav-item">
+          <a
+            className="nav-link"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              toggleMenu('finance');
+            }}
+          >
+            <i className="typcn typcn-credit-card menu-icon"></i>
+            <span className="menu-title">Finance</span>
+            <i className="menu-arrow"></i>
+          </a>
+          <div
+            className={`collapse ${openMenu === 'finance' ? 'show' : ''}`}
+            id="finance"
+          >
+            <ul className="nav flex-column sub-menu">
+              <li className="nav-item">
+                <Link className="nav-link" to="/payments">
+                  <i className="typcn typcn-credit-card menu-icon"></i>
+                  Payments
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </li>
+        {/* ===== END Finance ===== */}
+
 
         {/* Charts */}
         <li className="nav-item">

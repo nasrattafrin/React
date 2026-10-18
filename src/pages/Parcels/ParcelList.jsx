@@ -3,28 +3,23 @@ import { Link } from 'react-router';
 import API from '../../Lib/axios.js';
 import Layout from "../Layout.jsx";
 import StatusBadge from '../../components/StatusBadge';
-
 export default function ParcelList() {
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', status: '' });
-
   const load = () => {
     setLoading(true);
     const params = {};
     if (filters.search) params.search = filters.search;
     if (filters.status !== '') params.status = filters.status;
-
     API.get('/parcel/parcels.php', { params })
       .then(res => setParcels(res.data.parcels || []))
       .catch(err => alert(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
   };
-
   useEffect(() => {
     load();
   }, [filters]);
-
   const handleCancel = async (id, trackingId) => {
     if (!window.confirm(`Cancel parcel ${trackingId}? This cannot be undone.`)) return;
     try {
@@ -38,7 +33,16 @@ export default function ParcelList() {
       alert(err.response?.data?.message || err.message);
     }
   };
-
+  const [payments, setPayments] = useState({});
+            
+  
+  const renderPaymentBadge = (p) => {
+  const paid = Number(p.total_paid || 0);
+  if (paid > 0) {
+    return <span className="badge bg-success text-white">Paid</span>;
+  }
+  return <span className="badge bg-danger text-white">Unpaid</span>;
+};
   return (
     <Layout>
       <div className="row">
@@ -51,22 +55,19 @@ export default function ParcelList() {
                   + New Parcel
                 </Link>
               </div>
-
               <div className="row mb-3">
                 <div className="col-md-8">
                   <input
                     className="form-control"
                     placeholder="Search tracking / phone / name"
                     value={filters.search}
-                    onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-                  />
+                    onChange={e => setFilters(f => ({ ...f, search: e.target.value }))} />
                 </div>
                 <div className="col-md-4">
                   <select
                     className="form-control"
                     value={filters.status}
-                    onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
-                  >
+                    onChange={e => setFilters(f => ({ ...f, status: e.target.value }))} >
                     <option value="">All status</option>
                     <option value="0">Pending</option>
                     <option value="1">Picked</option>
@@ -76,7 +77,6 @@ export default function ParcelList() {
                   </select>
                 </div>
               </div>
-
               {loading ? (
                 <p className="text-muted">Loading...</p>
               ) : parcels.length === 0 ? (
@@ -85,8 +85,8 @@ export default function ParcelList() {
                   <Link to="/parcels/create" className="btn btn-primary btn-sm">
                     Create your first parcel
                   </Link>
-                </div>
-              ) : (
+                </div> ) :
+                 (
                 <div className="table-responsive">
                   <table className="table table-hover">
                     <thead>
@@ -95,12 +95,14 @@ export default function ParcelList() {
                         <th>Receiver</th>
                         <th>Zone</th>
                         <th>Charge</th>
+                        <th>Payment</th>
                         <th>Status</th>
                         <th className="text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {parcels.map(p => {
+                       
                         const isFinalised = [3, 4].includes(Number(p.status));
                         return (
                           <tr key={p.id}>
@@ -115,50 +117,38 @@ export default function ParcelList() {
                             </td>
                             <td>{p.zone_name}</td>
                             <td>৳{p.delivery_charge}</td>
+                            <td>{p.payment_status == 1 ? <span className="badge bg-success text-white">Collected</span> : <span className="badge bg-warning text-dark">Unpaid</span>}</td>
                             <td><StatusBadge status={p.status} /></td>
                             <td className="text-center">
-                              {/* View */}
                               <Link
                                 to={`/parcels/${p.id}`}
                                 className="btn btn-sm btn-info mr-1"
-                                title="View"
-                              >
+                                title="View" >
                                 <i className="typcn typcn-eye"></i>
                               </Link>
-
-                              {/* Edit — only if not finalised */}
                               {!isFinalised && (
                                 <Link
                                   to={`/parcels/${p.id}?edit=1`}
                                   className="btn btn-sm btn-primary mr-1"
-                                  title="Edit"
-                                >
+                                  title="Edit" >
                                   <i className="typcn typcn-pencil"></i>
                                 </Link>
                               )}
-
-                              {/* Cancel — only if not finalised */}
                               {!isFinalised && (
                                 <button
                                   className="btn btn-sm btn-warning"
                                   title="Cancel Parcel"
-                                  onClick={() => handleCancel(p.id, p.tracking_id)}
-                                >
+                                  onClick={() => handleCancel(p.id, p.tracking_id)} >
                                   <i className="typcn typcn-times"></i>
                                 </button>
                               )}
-
                               {isFinalised && (
-                                <span className="text-muted small">—</span>
-                              )}
+                              <span className="text-muted small">—</span>)}
                             </td>
-                          </tr>
-                        );
-                      })}
+                          </tr>); })}
                     </tbody>
                   </table>
-                </div>
-              )}
+                </div> )}
             </div>
           </div>
         </div>

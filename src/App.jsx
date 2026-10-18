@@ -19,6 +19,8 @@ import ParcelCreate from "./pages/Parcels/ParcelCreate.jsx";
 import ParcelDetail from "./pages/Parcels/ParcelDetail.jsx";
 import TrackParcel from "./pages/Parcels/TrackParcel.jsx";
 import DeliverymenList from "./pages/Parcels/DeliverymenList.jsx";
+import PricingList from "./pages/Parcels/PricingList.jsx";
+import PaymentsList from "./pages/Parcels/PaymentsList.jsx";
 
 import './App.css';
 export default function App() {
@@ -61,7 +63,10 @@ export default function App() {
             <Route path=":id" element={<ParcelDetail />} />
           </Route>
           <Route path="track" element={<TrackParcel />} />
-          <Route path="deliverymen" element={<DeliverymenList />} />
+          <Route path="pricing" element={<PricingList />}/>
+          <Route path="payments" element={<PaymentsList />}/>
+          <Route path="deliverymen" element={<DeliverymenList />}/>
+
 
         </Route>
       </Routes>
