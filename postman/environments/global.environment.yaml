@@ -1,0 +1,6 @@
+name: global
+values:
+  - key: token
+    value: ''
+  - key: url
+    value: ''

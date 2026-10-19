@@ -110,7 +110,7 @@ export default function ParcelDetail() {
         { headers: { 'Content-Type': 'application/json' } }
       );
       setIsEditing(false);
-      load();
+      loadParcel();
     } catch (err) {
       alert(err.response?.data?.message || err.message);
     } finally {
@@ -125,7 +125,7 @@ export default function ParcelDetail() {
         { headers: { 'Content-Type': 'application/json' } }
       );
       setNote('');
-      load();
+      loadParcel();
     } catch (err) { alert(err.response?.data?.message || err.message); }
   };
   const assign = async (deliverymanId) => {
@@ -138,7 +138,7 @@ export default function ParcelDetail() {
         },
         { headers: { 'Content-Type': 'application/json' } }
       );
-      load();
+      loadParcel();
     } catch (err) { alert(err.response?.data?.message || err.message); }
   };
   const handleCancel = async () => {
@@ -149,7 +149,7 @@ export default function ParcelDetail() {
         { id: Number(id), status: 4, note: 'Cancelled from detail' },
         { headers: { 'Content-Type': 'application/json' } }
       );
-      load();
+      loadParcel();
     } catch (err) { alert(err.response?.data?.message || err.message); }
   };
   const openPayModal = () => {
@@ -193,7 +193,7 @@ export default function ParcelDetail() {
       );
       closePayModal();
       loadPayments();
-      load();
+      loadParcel();
     } catch (err) {
       setPayError(err.response?.data?.message || err.message);
     } finally {
@@ -205,7 +205,7 @@ export default function ParcelDetail() {
     try {
       await API.delete(`/payments/delete.php?id=${pid}`);
       loadPayments();
-      load();
+      loadParcel();
     } catch (err) {
       alert(err.response?.data?.message || err.message);
     }

@@ -111,6 +111,12 @@ function Sidebar() {
                   Payments
                 </Link>
               </li>
+               <li className="nav-item">
+                 <Link className="nav-link" to="/cod-settlements">
+                   <i className="typcn typcn-clipboard menu-icon"></i>
+                    COD Settlements
+                  </Link>
+                </li>
             </ul>
           </div>
         </li>
