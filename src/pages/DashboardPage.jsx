@@ -1,440 +1,189 @@
-import { useState } from 'react';
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
+import { 
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar
+} from 'recharts';
+import API from '../Lib/axios.js';
 import Layout from "./Layout.jsx";
+import StatusBadge from '../components/StatusBadge';
 
-export default function Dashboard() {
-  const [openDropdown, setOpenDropdown] = useState(null);
+export default function DashboardPage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    API.get('/dashboard/stats.php')
+      .then(res => {
+        if (res.data.status) {
+          setData(res.data.data);
+        }
+      })
+      .catch(err => alert(err.response?.data?.message || err.message))
+      .finally(() => setLoading(false));
+  }, []);
+  if (loading) return <Layout><p className="text-muted p-5">Loading Dashboard...</p></Layout>;
+  if (!data) return <Layout><p className="text-danger p-5">Failed to load data.</p></Layout>;
 
-  const toggleDropdown = (id) => {
-    setOpenDropdown(openDropdown===id ?null:id);
-  };
-
+  const { kpi, chart_data, recent_parcels, revenue_trend, top_deliverymen } = data;
   return (
     <Layout>
-    <div className="content-wrapper">
       <div className="row">
-        <div className="col-xl-6 grid-margin stretch-card flex-column">
-          <h5 className="mb-2 text-titlecase mb-4">Status statistics</h5>
-          <div className="row">
-            <div className="col-md-6 grid-margin stretch-card">
-              <div className="card">
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <p className="mb-0 text-muted">Transactions</p>
-                    <p className="mb-0 text-muted">+1.37%</p>
-                  </div>
-                  <h4>1352</h4>
-                  <canvas id="transactions-chart" className="mt-auto" height="65"></canvas>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-6 grid-margin stretch-card">
-              <div className="card">
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                      <p className="mb-2 text-muted">Sales</p>
-                      <h6 className="mb-0">563</h6>
-                    </div>
-                    <div>
-                      <p className="mb-2 text-muted">Orders</p>
-                      <h6 className="mb-0">720</h6>
-                    </div>
-                    <div>
-                      <p className="mb-2 text-muted">Revenue</p>
-                      <h6 className="mb-0">5900</h6>
-                    </div>
-                  </div>
-                  <canvas id="sales-chart-a" className="mt-auto" height="65"></canvas>
-                </div>
-              </div>
-            </div>
-
-          </div>
-            <div className="row h-100">
-            <div className="col-md-6 stretch-card grid-margin grid-margin-md-0">
-              <div className="card">
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <p className="text-muted">Sales Analytics</p>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h3 className="mb-0">27632</h3>
-                    <h3 className="mb-0">78%</h3>
-                  </div>
-                  <canvas id="sales-chart-b" className="mt-auto" height="38"></canvas>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-6 stretch-card">
-              <div className="card">
-                <div className="card-body">
-                  <div className="row h-100">
-                    <div className="col-6 d-flex flex-column justify-content-between">
-                      <p className="text-muted">CPU</p>
-                      <h4>55%</h4>
-                      <canvas id="cpu-chart" className="mt-auto"></canvas>
-                    </div>
-                    <div className="col-6 d-flex flex-column justify-content-between">
-                      <p className="text-muted">Memory</p>
-                      <h4>123,65</h4>
-                      <canvas id="memory-chart" className="mt-auto"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="col-12 mb-4">
+          <h4 className="card-title mb-1">Dashboard Overview</h4>
+          <p className="text-muted small mb-0">Welcome back! Here is what's happening today.</p>
         </div>
-        <div className="col-xl-6 grid-margin stretch-card flex-column">
-          <h5 className="mb-2 text-titlecase mb-4">Income statistics</h5>
-          <div className="row h-100">
-            <div className="col-md-12 stretch-card">
-              <div className="card">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start flex-wrap">
-                    <div>
-                      <p className="mb-3">Monthly Increase</p>
-                      <h3>67842</h3>
-                    </div>
-                    <div id="income-chart-legend" className="d-flex flex-wrap mt-1 mt-md-0"></div>
-                  </div>
-                  <canvas id="income-chart"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-xl-4 grid-margin stretch-card">
-          <div className="card">
-            <div className="card-body border-bottom">
-              <div className="d-flex justify-content-between align-items-center flex-wrap">
-                <h6 className="mb-2 mb-md-0 text-uppercase font-weight-medium">Overall sales</h6>
-                <div className="dropdown">
-                  <button
-                    className="btn bg-white p-0 pb-1 text-muted btn-sm dropdown-toggle"
-                    type="button"
-                    onClick={() => toggleDropdown('overall-1')}
-                  >
-                    Last 30 days
-                  </button>
-                  {openDropdown === 'overall-1' && (
-                    <div className="dropdown-menu show">
-                      <h6 className="dropdown-header">Settings</h6>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Action</Link>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Another action</Link>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Something else here</Link>
-                      <div className="dropdown-divider"></div>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Separated link</Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+        <div className="col-md-3 grid-margin stretch-card">
+          <div className="card border-left border-primary">
             <div className="card-body">
-              <canvas id="sales-chart-c" className="mt-2"></canvas>
-              <div className="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3 mt-4">
-                <div className="d-flex flex-column justify-content-center align-items-center">
-                  <p className="text-muted">Gross Sales</p>
-                  <h5>492</h5>
-                  <div className="d-flex align-items-baseline">
-                    <p className="text-success mb-0">0.5%</p>
-                    <i className="typcn typcn-arrow-up-thick text-success"></i>
-                  </div>
-                </div>
-                <div className="d-flex flex-column justify-content-center align-items-center">
-                  <p className="text-muted">Purchases</p>
-                  <h5>87k</h5>
-                  <div className="d-flex align-items-baseline">
-                    <p className="text-success mb-0">0.8%</p>
-                    <i className="typcn typcn-arrow-up-thick text-success"></i>
-                  </div>
-                </div>
-                <div className="d-flex flex-column justify-content-center align-items-center">
-                  <p className="text-muted">Tax Return</p>
-                  <h5>882</h5>
-                  <div className="d-flex align-items-baseline">
-                    <p className="text-danger mb-0">-04%</p>
-                    <i className="typcn typcn-arrow-down-thick text-danger"></i>
-                  </div>
-                </div>
-              </div>
               <div className="d-flex justify-content-between align-items-center">
-                <div className="dropdown">
-                  <button
-                    className="btn bg-white p-0 pb-1 pt-1 text-muted btn-sm dropdown-toggle"
-                    type="button"
-                    onClick={() => toggleDropdown('overall-2')}
-                  >
-                    Last 7 days
-                  </button>
-                  {openDropdown === 'overall-2' && (
-                    <div className="dropdown-menu show">
-                      <h6 className="dropdown-header">Settings</h6>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Action</Link>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Another action</Link>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Something else here</Link>
-                      <div className="dropdown-divider"></div>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Separated link</Link>
-                    </div>
-                  )}
-                </div>
-                <p className="mb-0">overview</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6 col-xl-4 grid-margin stretch-card">
-          <div className="row">
-            <div className="col-md-12 grid-margin stretch-card">
-              <div className="card newsletter-card bg-gradient-warning">
-                <div className="card-body">
-                  <div className="d-flex flex-column align-items-center justify-content-center h-100">
-                    <h5 className="mb-3 text-white">Newsletter</h5>
-                    <form className="form d-flex flex-column align-items-center justify-content-between w-100">
-                      <div className="form-group mb-2 w-100">
-                        <input type="text" className="form-control" placeholder="email address" />
-                      </div>
-                      <button className="btn btn-danger btn-rounded mt-1" type="submit">Subscribe</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-12 stretch-card">
-              <div className="card profile-card bg-gradient-primary">
-                <div className="card-body">
-                  <div className="row align-items-center h-100">
-                    <div className="col-md-4">
-                      <figure className="avatar mx-auto mb-4 mb-md-0">
-                        <img src="/assets/images/faces/face20.jpg" alt="avatar" />
-                      </figure>
-                    </div>
-                    <div className="col-md-8">
-                      <h5 className="text-white text-center text-md-left">Phoebe Kennedy</h5>
-                      <p className="text-white text-center text-md-left">kennedy@gmail.com</p>
-                      <div className="d-flex align-items-center justify-content-between info pt-2">
-                        <div>
-                          <p className="text-white font-weight-bold">Birth date</p>
-                          <p className="text-white font-weight-bold">Birth city</p>
-                        </div>
-                        <div>
-                          <p className="text-white">16 Sep 2019</p>
-                          <p className="text-white">Netherlands</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6 col-xl-4 grid-margin stretch-card">
-          <div className="card">
-            <div className="card-body border-bottom">
-              <div className="d-flex justify-content-between align-items-center flex-wrap">
-                <h6 className="mb-2 mb-md-0 text-uppercase font-weight-medium">Sales statistics</h6>
-                <div className="dropdown">
-                  <button
-                    className="btn bg-white p-0 pb-1 text-muted btn-sm dropdown-toggle"
-                    type="button"
-                    onClick={() => toggleDropdown('sales-stats')}
-                  >
-                    Last 7 days
-                  </button>
-                  {openDropdown === 'sales-stats' && (
-                    <div className="dropdown-menu show">
-                      <h6 className="dropdown-header">Settings</h6>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Action</Link>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Another action</Link>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Something else here</Link>
-                      <div className="dropdown-divider"></div>
-                      <Link className="dropdown-item" to="#" onClick={(e) => e.preventDefault()}>Separated link</Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="card-body">
-              <canvas id="sales-chart-d" height="320"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-md-4 grid-margin stretch-card">
-          <div className="card">
-            <div className="card-body">
-              <div className="d-flex align-items-center justify-content-between justify-content-md-center justify-content-xl-between flex-wrap mb-4">
                 <div>
-                  <p className="mb-2 text-md-center text-lg-left">Total Expenses</p>
-                  <h1 className="mb-0">8742</h1>
+                  <p className="text-muted mb-1 small text-uppercase">Total Parcels</p>
+                  <h3 className="mb-0">{kpi.total_parcels}</h3>
                 </div>
-                <i className="typcn typcn-briefcase icon-xl text-secondary"></i>
+                <i className="typcn typcn-box text-primary" style={{ fontSize: 40 }}></i>
               </div>
-              <canvas id="expense-chart" height="80"></canvas>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3 grid-margin stretch-card">
+          <div className="card border-left border-success">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <p className="text-muted mb-1 small text-uppercase">Total Revenue</p>
+                  <h3 className="mb-0">৳{Number(kpi.total_revenue).toFixed(0)}</h3>
+                </div>
+                <i className="typcn typcn-chart-line text-success" style={{ fontSize: 40 }}></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3 grid-margin stretch-card">
+          <div className="card border-left border-warning">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <p className="text-muted mb-1 small text-uppercase">Pending Deliveries</p>
+                  <h3 className="mb-0">{kpi.pending_parcels}</h3>
+                </div>
+                <i className="typcn typcn-time text-warning" style={{ fontSize: 40 }}></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3 grid-margin stretch-card">
+          <div className="card border-left border-info">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <p className="text-muted mb-1 small text-uppercase">Total Merchants</p>
+                  <h3 className="mb-0">{kpi.total_merchants}</h3>
+                </div>
+                <i className="typcn typcn-user text-info" style={{ fontSize: 40 }}></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-7 grid-margin stretch-card">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">Revenue Trend (Last 7 Days)</h4>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <LineChart data={revenue_trend} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(value) => `৳${value}`} />
+                    <Line type="monotone" dataKey="amount" stroke="#28a745" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-5 grid-margin stretch-card">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">Parcel Status Overview</h4>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie data={chart_data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
+                      {chart_data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="col-md-4 grid-margin stretch-card">
+        <div className="col-md-5 grid-margin stretch-card">
           <div className="card">
             <div className="card-body">
-              <div className="d-flex align-items-center justify-content-between justify-content-md-center justify-content-xl-between flex-wrap mb-4">
-                <div>
-                  <p className="mb-2 text-md-center text-lg-left">Total Budget</p>
-                  <h1 className="mb-0">47,840</h1>
-                </div>
-                <i className="typcn typcn-chart-pie icon-xl text-secondary"></i>
+              <h4 className="card-title">Top Deliverymen</h4>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <BarChart data={top_deliverymen} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="total_delivered" fill="#17a2b8" radius={[4, 4, 0, 0]} barSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-              <canvas id="budget-chart" height="80"></canvas>
             </div>
           </div>
         </div>
 
-        <div className="col-md-4 grid-margin stretch-card">
+        <div className="col-md-7 grid-margin stretch-card">
           <div className="card">
             <div className="card-body">
-              <div className="d-flex align-items-center justify-content-between justify-content-md-center justify-content-xl-between flex-wrap mb-4">
-                <div>
-                  <p className="mb-2 text-md-center text-lg-left">Total Balance</p>
-                  <h1 className="mb-0">$7,243</h1>
-                </div>
-                <i className="typcn typcn-clipboard icon-xl text-secondary"></i>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4 className="card-title mb-0">Recent Parcels</h4>
+                <Link to="/parcels" className="text-primary small">View All</Link>
               </div>
-              <canvas id="balance-chart" height="80"></canvas>
+              <div className="table-responsive">
+                <table className="table table-hover table-striped">
+                  <thead>
+                    <tr>
+                      <th>Tracking ID</th>
+                      <th>Receiver</th>
+                      <th>Zone</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent_parcels.map(p => (
+                      <tr key={p.id}>
+                        <td>
+                          <Link to={`/parcels/${p.id}`} className="text-primary font-monospace">
+                            {p.tracking_id}
+                          </Link>
+                        </td>
+                        <td>{p.receiver_name}</td>
+                        <td>{p.zone_name}</td>
+                        <td><StatusBadge status={p.status} /></td>
+                      </tr>
+                    ))}
+                    {recent_parcels.length === 0 && (
+                      <tr><td colSpan="4" className="text-center text-muted py-3">No recent parcels</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="row">
-        <div className="col-md-12">
-          <div className="card">
-            <div className="table-responsive pt-3">
-              <table className="table table-striped project-orders-table">
-                <thead>
-                  <tr>
-                    <th className="ml-5">ID</th>
-                    <th>Project name</th>
-                    <th>Customer</th>
-                    <th>Deadline</th>
-                    <th>Payouts</th>
-                    <th>Traffic</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                      <tr>
-                        <td>#D1</td>
-                        <td>Consectetur adipisicing elit </td>
-                        <td>Beulah Cummings</td>
-                        <td>03 Jan 2019</td>
-                        <td>$ 5235</td>
-                        <td>1.3K</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <button type="button" class="btn btn-success btn-sm btn-icon-text mr-3">
-                              Edit
-                              <i class="typcn typcn-edit btn-icon-append"></i>                          
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm btn-icon-text">
-                              Delete
-                              <i class="typcn typcn-delete-outline btn-icon-append"></i>                          
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>#D2</td>
-                        <td>Correlation natural resources silo</td>
-                        <td>Mitchel Dunford</td>
-                        <td>09 Oct 2019</td>
-                        <td>$ 3233</td>
-                        <td>5.4K</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <button type="button" class="btn btn-success btn-sm btn-icon-text mr-3">
-                              Edit
-                              <i class="typcn typcn-edit btn-icon-append"></i>                          
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm btn-icon-text">
-                              Delete
-                              <i class="typcn typcn-delete-outline btn-icon-append"></i>                          
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>#D3</td>
-                        <td>social capital compassion social</td>
-                        <td>Pei Canaday</td>
-                        <td>18 Jun 2019</td>
-                        <td>$ 4311</td>
-                        <td>2.1K</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <button type="button" class="btn btn-success btn-sm btn-icon-text mr-3">
-                              Edit
-                              <i class="typcn typcn-edit btn-icon-append"></i>                          
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm btn-icon-text">
-                              Delete
-                              <i class="typcn typcn-delete-outline btn-icon-append"></i>                          
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>#D4</td>
-                        <td>empower communities thought</td>
-                        <td>Gaynell Sharpton</td>
-                        <td>23 Mar 2019</td>
-                        <td>$ 7743</td>
-                        <td>2.7K</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <button type="button" class="btn btn-success btn-sm btn-icon-text mr-3">
-                              Edit
-                              <i class="typcn typcn-edit btn-icon-append"></i>                          
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm btn-icon-text">
-                              Delete
-                              <i class="typcn typcn-delete-outline btn-icon-append"></i>                          
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>#D5</td>
-                        <td> Targeted effective; mobilize </td>
-                        <td>Audrie Midyett</td>
-                        <td>22 Aug 2019</td>
-                        <td>$ 2455</td>
-                        <td>1.2K</td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <button type="button" class="btn btn-success btn-sm btn-icon-text mr-3">
-                              Edit
-                              <i class="typcn typcn-edit btn-icon-append"></i>                          
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm btn-icon-text">
-                              Delete
-                              <i class="typcn typcn-delete-outline btn-icon-append"></i>                          
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
 
-    </div>
+      </div>
     </Layout>
   );
 }
