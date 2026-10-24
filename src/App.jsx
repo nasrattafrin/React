@@ -22,6 +22,8 @@ import DeliverymenList from "./pages/Parcels/DeliverymenList.jsx";
 import PricingList from "./pages/Parcels/PricingList.jsx";
 import PaymentsList from "./pages/Parcels/PaymentsList.jsx";
 import CodSettlementsList from "./pages/Parcels/CodSettlementsList.jsx";
+import WalletsList from "./pages/Finance/WalletsList.jsx";
+import WithdrawList from "./pages/Finance/WithdrawList.jsx";
 
 import './App.css';
 export default function App() {
@@ -68,6 +70,8 @@ export default function App() {
           <Route path="payments" element={<PaymentsList />}/>
           <Route path="deliverymen" element={<DeliverymenList />}/>
           <Route path="cod-settlements" element={<CodSettlementsList />}/>
+          <Route path="wallets" element={<WalletsList />} />
+          <Route path="withdraw-requests" element={<WithdrawList />} />
 
 
         </Route>

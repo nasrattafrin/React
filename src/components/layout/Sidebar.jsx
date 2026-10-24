@@ -117,13 +117,24 @@ function Sidebar() {
                     COD Settlements
                   </Link>
                 </li>
+                <li className="nav-item">
+                <Link className="nav-link" to="/wallets">
+                <i className="typcn typcn-archive menu-icon"></i>
+                  Wallets
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/withdraw-requests">
+                  <i className="typcn typcn-export menu-icon"></i>
+                  Withdraw Requests
+                </Link>
+              </li>
             </ul>
           </div>
         </li>
-        {/* ===== END Finance ===== */}
 
 
-        {/* Charts */}
+        {/* 
         <li className="nav-item">
           <a
             className="nav-link"
@@ -148,9 +159,9 @@ function Sidebar() {
               </li>
             </ul>
           </div>
-        </li>
+        </li>*/}
 
-        {/* Tables */}
+        {/* 
         <li className="nav-item">
           <a
             className="nav-link"
@@ -175,9 +186,9 @@ function Sidebar() {
               </li>
             </ul>
           </div>
-        </li>
+        </li>Tables */}
 
-        {/* Icons */}
+        {/*
         <li className="nav-item">
           <a
             className="nav-link"
@@ -202,7 +213,7 @@ function Sidebar() {
               </li>
             </ul>
           </div>
-        </li>
+        </li> Icons */}
 
         {/* User Pages */}
         <li className="nav-item">
