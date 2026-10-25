@@ -7,9 +7,12 @@ export default function ParcelCreate() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [zones, setZones] = useState([]);
+  const [merchants, setMerchants] = useState([]); 
   const [charge, setCharge] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  
   const [form, setForm] = useState({
+    sender_id: '', 
     receiver_name: '',
     receiver_phone: '',
     pickup_address: '',
@@ -18,11 +21,18 @@ export default function ParcelCreate() {
     zone_id: '',
     cod_amount: 0,
   });
+
   useEffect(() => {
     API.get('/parcel/zones.php')
       .then(res => setZones(res.data.zones || []))
       .catch(() => {});
+
+    // Merchant list load koro
+    API.get('/users/merchants.php')
+      .then(res => setMerchants(res.data.merchants || []))
+      .catch(() => {});
   }, []);
+
   useEffect(() => {
     const w = Number(form.weight);
     if (form.zone_id && w > 0 && w <= MAX_WEIGHT) {
@@ -37,13 +47,17 @@ export default function ParcelCreate() {
       setCharge(0);
     }
   }, [form.zone_id, form.weight]);
+
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
   const validateStep1 = () => {
+    if (!form.sender_id) return alert('Please select a Merchant');
     if (!form.receiver_name.trim()) return alert('Receiver name required');
     if (!form.receiver_phone.trim()) return alert('Receiver phone required');
     if (!form.delivery_address.trim()) return alert('Delivery address required');
     setStep(2);
   };
+
   const validateStep2 = () => {
     const w = Number(form.weight);
     if (!w || w <= 0) return alert('Valid weight required');
@@ -51,6 +65,7 @@ export default function ParcelCreate() {
     if (!form.zone_id) return alert('Select a zone');
     setStep(3);
   };
+
   const submit = async () => {
     setSubmitting(true);
     try {
@@ -61,6 +76,7 @@ export default function ParcelCreate() {
           weight: Number(form.weight),
           zone_id: Number(form.zone_id),
           cod_amount: Number(form.cod_amount) || 0,
+          sender_id: Number(form.sender_id), // Sender ID pathano holo
         },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -72,7 +88,9 @@ export default function ParcelCreate() {
       setSubmitting(false);
     }
   };
+
   const weightTooHigh = Number(form.weight) > MAX_WEIGHT;
+  const selectedMerchant = merchants.find(m => String(m.id) === String(form.sender_id));
   return (
     <Layout>
       <div className="row">
@@ -81,7 +99,7 @@ export default function ParcelCreate() {
             <div className="card-body">
               <h4 className="card-title">Create New Parcel</h4>
               <div className="d-flex justify-content-between mb-4">
-                {['Receiver', 'Parcel', 'Confirm'].map((label, i) => {
+                {['Sender & Receiver', 'Parcel Details', 'Confirm'].map((label, i) => {
                   const n = i + 1;
                   const active = step >= n;
                   return (
@@ -101,7 +119,19 @@ export default function ParcelCreate() {
               </div>
               {step === 1 && (
                 <div>
-                  <h5 className="mb-3">Receiver Information</h5>
+                  <h5 className="mb-3">Sender & Receiver Information</h5>
+                  
+                  <div className="form-group">
+                    <label>Select Merchant (Sender) *</label>
+                    <select className="form-control" value={form.sender_id}
+                      onChange={e => set('sender_id', e.target.value)}>
+                      <option value="">-- Select Merchant --</option>
+                      {merchants.map(m => (
+                        <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="form-group">
                     <label>Receiver name</label>
                     <input className="form-control" value={form.receiver_name}
@@ -122,6 +152,7 @@ export default function ParcelCreate() {
                   </div>
                 </div>
               )}
+
               {step === 2 && (
                 <div>
                   <h5 className="mb-3">Parcel Details</h5>
@@ -179,20 +210,18 @@ export default function ParcelCreate() {
                   </div>
                   <div className="d-flex justify-content-between">
                     <button className="btn btn-light" onClick={() => setStep(1)}>← Back</button>
-                    <button
-                      className="btn btn-primary"
-                      onClick={validateStep2}
-                      disabled={weightTooHigh}
-                    >
+                    <button className="btn btn-primary" onClick={validateStep2} disabled={weightTooHigh}>
                       Next →
                     </button>
                   </div>
                 </div>
               )}
+
               {step === 3 && (
                 <div>
                   <h5 className="mb-3">Review & Confirm</h5>
                   <div className="bg-light p-3 rounded mb-3">
+                    <p className="mb-1"><strong>Sender (Merchant):</strong> {selectedMerchant ? selectedMerchant.name : '—'}</p>
                     <p className="mb-1"><strong>To:</strong> {form.receiver_name} ({form.receiver_phone})</p>
                     <p className="mb-1"><strong>Delivery:</strong> {form.delivery_address}</p>
                     <p className="mb-1"><strong>Pickup:</strong> {form.pickup_address || '—'}</p>
@@ -200,6 +229,7 @@ export default function ParcelCreate() {
                     <p className="mb-1"><strong>Charge:</strong> ৳{charge}</p>
                     <p className="mb-0"><strong>COD:</strong> ৳{form.cod_amount || 0}</p>
                   </div>
+
                   <div className="d-flex justify-content-between">
                     <button className="btn btn-light" onClick={() => setStep(2)}>← Back</button>
                     <button className="btn btn-success" onClick={submit}
@@ -209,6 +239,7 @@ export default function ParcelCreate() {
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         </div>
