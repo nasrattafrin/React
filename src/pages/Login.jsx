@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Link,  } from "react-router";
+import { Link } from "react-router";
 import axios from "axios";
 
 export default function Login() {
-
-
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
@@ -14,8 +12,9 @@ export default function Login() {
     event.preventDefault();
   
     const form = new FormData(event.target);
+    setLoading(true);
 
-     axios
+    axios
       .post(`${import.meta.env.VITE_API_URL}login.php`, {
         email: form.get("email"),
         password: form.get("password")
@@ -23,15 +22,40 @@ export default function Login() {
       .then((response) => {
           if (response.data.status == false) {
             setMessage("Invalid email or password.");
-            setMessageType('danger')
+            setMessageType('danger');
+            setLoading(false);
           } else {
+            // 1. Token save
             localStorage.setItem("access_token", response.data.jwt);
-            localStorage.setItem("userdata", response.data.data);
+            
+            // 2. User Data ber koro
+            const userData = response.data.data;
+
+            // 3. Role ID ta ber koro (jekono jaygay thakuk, dhore nibe)
+            let roleId = 1; // Default admin
+            if (userData) {
+              if (userData.role_id !== undefined && userData.role_id !== null) {
+                roleId = userData.role_id;
+              } else if (userData.role && userData.role.id) {
+                roleId = userData.role.id;
+              }
+            }
+            
+            
+            localStorage.setItem("role_id", Number(roleId));
+            
+            // User data save koro
+            localStorage.setItem("userdata", JSON.stringify(userData));
+            
+            // Redirect
             window.location.href = './dashboard';
           }
       })
-      .catch(() => {
-        setMessage("An error occurred while creating your account. Please try again.");
+      .catch((error) => {
+        console.error(error);
+        setMessage("An error occurred. Please try again.");
+        setMessageType('danger');
+        setLoading(false);
       });
   }
 
@@ -43,26 +67,22 @@ export default function Login() {
           <div className="col-lg-4 mx-auto">
             <div className="auth-form-light text-left py-5 px-4 px-sm-5">
 
-              {/* Logo */}
               <div className="brand-logo"> <img src="/assets/images/logo-dark.svg" alt="logo" /></div>
 
               <h4>Hello! let's get started</h4>
               <h6 className="font-weight-light text-muted">  Sign in to continue.</h6>
 
-              {/* Message Alert */}
               {message && (
                 <div
                   className={`alert ${ messageType === "success" ? "alert-success" : "alert-danger" } mt-3`} >  {message}</div> )}
 
               <form className="pt-3" onSubmit={handleSubmit}>
 
-                {/* Email */}
                 <div className="form-group">
                   <input type="email" name="email" className="form-control form-control-lg" id="exampleInputEmail1" placeholder="Email" required
                   />
                 </div>
 
-                {/* Password with toggle */}
                 <div className="form-group position-relative">
                   <input
                     type={passwordVisible ? "text" : "password"}
@@ -97,7 +117,6 @@ export default function Login() {
                   </button>
                 </div>
 
-                {/* Remember me + Forgot password */}
                 <div className="my-2 d-flex justify-content-between align-items-center">
                   <div className="form-check">
                     <label className="form-check-label text-muted">
@@ -119,7 +138,6 @@ export default function Login() {
                   </a>
                 </div>
 
-                {/* Submit Button */}
                 <div className="mt-3">
                   <button
                     type="submit"
@@ -130,7 +148,6 @@ export default function Login() {
                   </button>
                 </div>
 
-                {/* Register Link */}
                 <div className="text-center mt-4 font-weight-light text-muted">
                   Don't have an account?{" "}
                   <Link to="/register" className="text-primary font-weight-medium">

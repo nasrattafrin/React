@@ -24,20 +24,21 @@ import PaymentsList from "./pages/Parcels/PaymentsList.jsx";
 import CodSettlementsList from "./pages/Parcels/CodSettlementsList.jsx";
 import WalletsList from "./pages/Finance/WalletsList.jsx";
 import WithdrawList from "./pages/Finance/WithdrawList.jsx";
+import WalletTransactions from "./pages/Finance/WalletTransactions.jsx";
 
 import './App.css';
+
 export default function App() {
   const [ isSignedIn, setIsSignedIn ] = useState(()=> {
-    /* if you want, user will be logged in until they logout*/
     return localStorage.getItem("access_token") || false;
-    /* if you want, user will be logged when they close the browser*/
-    //return sessionStorage.getItem("access_token") || false;
   });
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="login" element={<Login />}/>
         <Route path="register" element={<Register />}/>
+        
         <Route element={<Protected isSignedIn={isSignedIn} />}>
           <Route index element={<DashboardPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -51,8 +52,6 @@ export default function App() {
                       
           <Route path="roles">
             <Route index element={<RolesIndex />} />
-            {/*<Route path="create" element={<RolesCreate />} />
-            <Route path="edit/:id" element={<RolesEdit />} />*/}
           </Route>
 
           <Route path="branches">
@@ -60,20 +59,22 @@ export default function App() {
             <Route path="create" element={<BranchesCreate />}/>
             <Route path="edit/:id" element={<BranchesEdit />} />
           </Route>
+          
           <Route path="parcels">
             <Route index element={<ParcelList />} />
             <Route path="create" element={<ParcelCreate />} />
             <Route path=":id" element={<ParcelDetail />} />
           </Route>
+          
           <Route path="track" element={<TrackParcel />} />
           <Route path="pricing" element={<PricingList />}/>
           <Route path="payments" element={<PaymentsList />}/>
           <Route path="deliverymen" element={<DeliverymenList />}/>
           <Route path="cod-settlements" element={<CodSettlementsList />}/>
+          
           <Route path="wallets" element={<WalletsList />} />
+          <Route path="wallets/:id/transactions" element={<WalletTransactions />} />
           <Route path="withdraw-requests" element={<WithdrawList />} />
-
-
         </Route>
       </Routes>
     </BrowserRouter>

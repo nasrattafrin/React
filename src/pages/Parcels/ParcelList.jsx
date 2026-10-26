@@ -3,23 +3,32 @@ import { Link } from 'react-router';
 import API from '../../Lib/axios.js';
 import Layout from "../Layout.jsx";
 import StatusBadge from '../../components/StatusBadge';
+
 export default function ParcelList() {
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ search: '', status: '' });
+  
+  // Check koro user Merchant (2) kina
+  const roleId = Number(localStorage.getItem('role_id'));
+  const isMerchant = roleId === 2; 
+
   const load = () => {
     setLoading(true);
     const params = {};
     if (filters.search) params.search = filters.search;
     if (filters.status !== '') params.status = filters.status;
+
     API.get('/parcel/parcels.php', { params })
       .then(res => setParcels(res.data.parcels || []))
       .catch(err => alert(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
   };
+
   useEffect(() => {
     load();
   }, [filters]);
+
   const handleCancel = async (id, trackingId) => {
     if (!window.confirm(`Cancel parcel ${trackingId}? This cannot be undone.`)) return;
     try {
@@ -33,28 +42,29 @@ export default function ParcelList() {
       alert(err.response?.data?.message || err.message);
     }
   };
-  const [payments, setPayments] = useState({});
-            
-  
-  const renderPaymentBadge = (p) => {
-  const paid = Number(p.total_paid || 0);
-  if (paid > 0) {
-    return <span className="badge bg-success text-white">Paid</span>;
-  }
-  return <span className="badge bg-danger text-white">Unpaid</span>;
-};
+
   return (
     <Layout>
       <div className="row">
         <div className="col-12 grid-margin stretch-card">
           <div className="card">
             <div className="card-body">
+              
+              {/* Header Section */}
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="card-title mb-0">Parcels</h4>
-                <Link to="/parcels/create" className="btn btn-primary btn-sm">
-                  + New Parcel
-                </Link>
+                <h4 className="card-title mb-0">
+                  {isMerchant ? 'My Parcels' : 'All Parcels'}
+                </h4>
+                
+           
+                {!isMerchant && (
+                  <Link to="/parcels/create" className="btn btn-primary btn-sm">
+                    + New Parcel
+                  </Link>
+                )}
               </div>
+
+              {/* Filters */}
               <div className="row mb-3">
                 <div className="col-md-8">
                   <input
@@ -77,16 +87,20 @@ export default function ParcelList() {
                   </select>
                 </div>
               </div>
+
+              {/* Table */}
               {loading ? (
                 <p className="text-muted">Loading...</p>
               ) : parcels.length === 0 ? (
                 <div className="text-center py-5">
                   <p className="text-muted mb-3">No parcels found.</p>
-                  <Link to="/parcels/create" className="btn btn-primary btn-sm">
-                    Create your first parcel
-                  </Link>
-                </div> ) :
-                 (
+                  {!isMerchant && (
+                    <Link to="/parcels/create" className="btn btn-primary btn-sm">
+                      Create your first parcel
+                    </Link>
+                  )}
+                </div> 
+              ) : (
                 <div className="table-responsive">
                   <table className="table table-hover">
                     <thead>
@@ -102,7 +116,6 @@ export default function ParcelList() {
                     </thead>
                     <tbody>
                       {parcels.map(p => {
-                       
                         const isFinalised = [3, 4].includes(Number(p.status));
                         return (
                           <tr key={p.id}>
@@ -117,16 +130,22 @@ export default function ParcelList() {
                             </td>
                             <td>{p.zone_name}</td>
                             <td>৳{p.delivery_charge}</td>
-                            <td>{p.payment_status == 1 ? <span className="badge bg-success text-white">Collected</span> : <span className="badge bg-warning text-dark">Unpaid</span>}</td>
+                            <td>
+                              {p.payment_status == 1 
+                                ? <span className="badge bg-success text-white">Collected</span> 
+                                : <span className="badge bg-warning text-dark">Unpaid</span>}
+                            </td>
                             <td><StatusBadge status={p.status} /></td>
                             <td className="text-center">
+                              
+                              {/* View Button (Sobai dekhte parbe) */}
                               <Link
                                 to={`/parcels/${p.id}`}
                                 className="btn btn-sm btn-info mr-1"
                                 title="View" >
                                 <i className="typcn typcn-eye"></i>
                               </Link>
-                              {!isFinalised && (
+                              {!isMerchant && !isFinalised && (
                                 <Link
                                   to={`/parcels/${p.id}?edit=1`}
                                   className="btn btn-sm btn-primary mr-1"
@@ -134,7 +153,9 @@ export default function ParcelList() {
                                   <i className="typcn typcn-pencil"></i>
                                 </Link>
                               )}
-                              {!isFinalised && (
+
+                            
+                              {!isMerchant && !isFinalised && (
                                 <button
                                   className="btn btn-sm btn-warning"
                                   title="Cancel Parcel"
@@ -142,13 +163,18 @@ export default function ParcelList() {
                                   <i className="typcn typcn-times"></i>
                                 </button>
                               )}
+
                               {isFinalised && (
-                              <span className="text-muted small">—</span>)}
+                                <span className="text-muted small">—</span>
+                              )}
                             </td>
-                          </tr>); })}
+                          </tr>
+                        ); 
+                      })}
                     </tbody>
                   </table>
-                </div> )}
+                </div> 
+              )}
             </div>
           </div>
         </div>
