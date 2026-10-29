@@ -1,13 +1,32 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
+import API from '../../Lib/axios.js';
 
 function Sidebar() {
   const [openMenu, setOpenMenu] = useState(null);
   const [roleId, setRoleId] = useState(null);
+  const [ticketCount, setTicketCount] = useState(0);
+  const [notifCount, setNotifCount] = useState(0); // Notun Notification state
 
   useEffect(() => {
-    // Role ID ke Number hishebe set koro
-    setRoleId(Number(localStorage.getItem('role_id')));
+    const currentRole = Number(localStorage.getItem('role_id'));
+    setRoleId(currentRole);
+
+    if (currentRole === 1) {
+      // Admin: Ticket Count
+      API.get('/support_tickets/count.php')
+        .then(res => {
+          if (res.data.status) setTicketCount(res.data.count || 0);
+        })
+        .catch(() => {});
+    } else if (currentRole === 2) {
+      // Merchant: Notification Count
+      API.get('/notifications/count.php')
+        .then(res => {
+          if (res.data.status) setNotifCount(res.data.count || 0);
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const toggleMenu = (menu) => {
@@ -19,6 +38,7 @@ function Sidebar() {
   return (
     <nav className="sidebar sidebar-offcanvas" id="sidebar">
       <ul className="nav">
+        
         {/* Dashboard */}
         <li className="nav-item">
           <Link className="nav-link" to="/">
@@ -28,7 +48,31 @@ function Sidebar() {
           </Link>
         </li>
 
-        {/* ADMIN ONLY MENU */}
+        {/* Support */}
+        <li className="nav-item">
+          <Link className="nav-link" to="/support">
+            <i className="typcn typcn-support menu-icon"></i>
+            <span className="menu-title">{isMerchant ? 'Help & Support' : 'Support Tickets'}</span>
+            {!isMerchant && ticketCount > 0 && (
+              <div className="badge badge-danger">{ticketCount}</div>
+            )}
+          </Link>
+        </li>
+
+        {/* Notifications (Lal Badge SoHo) */}
+        <li className="nav-item">
+          <Link className="nav-link" to="/notifications">
+            <i className="typcn typcn-bell menu-icon"></i>
+            <span className="menu-title">{isMerchant ? 'Notifications' : 'Notification Logs'}</span>
+            
+            {/* Merchant er Jonno Unread Badge */}
+            {isMerchant && notifCount > 0 && (
+              <div className="badge badge-danger">{notifCount}</div>
+            )}
+          </Link>
+        </li>
+
+        {/* Admin Menus */}
         {!isMerchant && (
           <>
             <li className="nav-item">
@@ -46,7 +90,7 @@ function Sidebar() {
           </>
         )}
 
-        {/* ===== PARCELS ===== */}
+        {/* Parcels */}
         <li className="nav-item">
           <a
             className="nav-link"
@@ -72,7 +116,6 @@ function Sidebar() {
                 </Link>
               </li>
               
-              {/* Create, Deliverymen & Pricing sudhu Admin dekhbe */}
               {!isMerchant && (
                 <>
                   <li className="nav-item">
@@ -105,7 +148,7 @@ function Sidebar() {
           </div>
         </li>
 
-        {/* ===== FINANCE ===== */}
+        {/* Finance */}
         <li className="nav-item">
           <a
             className="nav-link"
@@ -124,8 +167,6 @@ function Sidebar() {
             id="finance"
           >
             <ul className="nav flex-column sub-menu">
-              
-              {/* Payments & COD Settlements shudhu Admin dekhbe */}
               {!isMerchant && (
                 <>
                   <li className="nav-item">
@@ -142,7 +183,6 @@ function Sidebar() {
                   </li>
                 </>
               )}
-              
               <li className="nav-item">
                 <Link className="nav-link" to="/wallets">
                   <i className="typcn typcn-archive menu-icon"></i>
@@ -159,7 +199,7 @@ function Sidebar() {
           </div>
         </li>
 
-        {/* User Pages (Shudhu Admin dekhbe) */}
+        {/* User Pages (Admin) */}
         {!isMerchant && (
           <li className="nav-item">
             <a

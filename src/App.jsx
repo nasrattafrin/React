@@ -25,6 +25,9 @@ import CodSettlementsList from "./pages/Parcels/CodSettlementsList.jsx";
 import WalletsList from "./pages/Finance/WalletsList.jsx";
 import WithdrawList from "./pages/Finance/WithdrawList.jsx";
 import WalletTransactions from "./pages/Finance/WalletTransactions.jsx";
+import SupportTickets from './pages/Support/SupportTickets.jsx';
+import CreateTicket from './pages/Support/CreateTicket.jsx';
+import NotificationsList from './pages/Support/NotificationsList.jsx';
 
 import './App.css';
 
@@ -75,6 +78,9 @@ export default function App() {
           <Route path="wallets" element={<WalletsList />} />
           <Route path="wallets/:id/transactions" element={<WalletTransactions />} />
           <Route path="withdraw-requests" element={<WithdrawList />} />
+          <Route path="support" element={<SupportTickets />} />
+          <Route path="support/create" element={<CreateTicket />} /> 
+          <Route path="notifications" element={<NotificationsList />} />  
         </Route>
       </Routes>
     </BrowserRouter>
